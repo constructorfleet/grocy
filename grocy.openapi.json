@@ -26,7 +26,7 @@
 			"name": "User management"
 		},
 		{
-			"name": "User settings"
+			"name": "Current user"
 		},
 		{
 			"name": "Stock"
@@ -194,7 +194,7 @@
 						"required": true,
 						"description": "A valid entity name",
 						"schema": {
-							"$ref": "#/components/internalSchemas/ExposedEntityButNoListing"
+							"$ref": "#/components/internalSchemas/ExposedEntity_NotIncludingNotListable"
 						}
 					},
 					{
@@ -367,7 +367,7 @@
 						"required": true,
 						"description": "A valid entity name",
 						"schema": {
-							"$ref": "#/components/internalSchemas/ExposedEntityButNoListing"
+							"$ref": "#/components/internalSchemas/ExposedEntity_NotIncludingNotListable"
 						}
 					},
 					{
@@ -1153,11 +1153,44 @@
 				}
 			}
 		},
+		"/user": {
+			"get": {
+				"summary": "Returns the currently authenticated user",
+				"tags": [
+					"Current user"
+				],
+				"responses": {
+					"200": {
+						"description": "A user object",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"items": {
+										"$ref": "#/components/schemas/UserDto"
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "The operation was not successful",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error400"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
 		"/user/settings": {
 			"get": {
 				"summary": "Returns all settings of the currently logged in user",
 				"tags": [
-					"User settings"
+					"Current user"
 				],
 				"responses": {
 					"200": {
@@ -1188,7 +1221,7 @@
 			"get": {
 				"summary": "Returns the given setting of the currently logged in user",
 				"tags": [
-					"User settings"
+					"Current user"
 				],
 				"parameters": [
 					{
@@ -1227,7 +1260,7 @@
 			"put": {
 				"summary": "Sets the given setting of the currently logged in user",
 				"tags": [
-					"User settings"
+					"Current user"
 				],
 				"requestBody": {
 					"description": "A valid UserSetting object",
@@ -3795,37 +3828,12 @@
 					"userentities",
 					"userobjects",
 					"meal_plan",
-					"stock_log"
+					"stock_log",
+					"stock",
+					"stock_current_locations"
 				]
 			},
-			"ExposedEntityButNoListing": {
-				"type": "string",
-				"enum": [
-					"products",
-					"product_barcodes",
-					"chores",
-					"batteries",
-					"locations",
-					"quantity_units",
-					"quantity_unit_conversions",
-					"shopping_list",
-					"shopping_lists",
-					"shopping_locations",
-					"recipes",
-					"recipes_pos",
-					"recipes_nestings",
-					"tasks",
-					"task_categories",
-					"product_groups",
-					"equipment",
-					"userfields",
-					"userentities",
-					"userobjects",
-					"meal_plan",
-					"stock_log"
-				]
-			},
-			"EntityEditRequiresAdmin": {
+			"ExposedEntityNoListing": {
 				"type": "string",
 				"enum": [
 					"api_keys"
@@ -3834,7 +3842,16 @@
 			"ExposedEntityNoEdit": {
 				"type": "string",
 				"enum": [
-					"stock_log"
+					"stock_log",
+					"api_keys",
+					"stock",
+					"stock_current_locations"
+				]
+			},
+			"ExposedEntityEditRequiresAdmin": {
+				"type": "string",
+				"enum": [
+					"api_keys"
 				]
 			},
 			"StockTransactionType": {
@@ -5053,7 +5070,7 @@
 				"in": "query",
 				"name": "order",
 				"required": false,
-				"description": "A valid field name by which the response should be ordered",
+				"description": "A valid field name by which the response should be ordered, use the separator `:` to specify the sort order (`asc` or `desc`, defaults to `asc` when omitted)",
 				"schema": {
 					"type": "string"
 				}
@@ -5080,7 +5097,7 @@
 				"in": "query",
 				"name": "query[]",
 				"required": false,
-				"description": "An array of filter conditions, each of them is a string in the form of `<field><condition><value>` where<br>`<field>` is a valid field name<br>`<condition>` is a comparison operator, one of<br>&nbsp;&nbsp;`=` equal<br>&nbsp;&nbsp;`~` LIKE<br>&nbsp;&nbsp;`<` less<br>&nbsp;&nbsp;`>` greater<br>&nbsp;&nbsp;`<=` less or equal<br>&nbsp;&nbsp;`>=` (reater or equal<br>`<value>` is the value to search for",
+				"description": "An array of filter conditions, each of them is a string in the form of `<field><condition><value>` where<br>`<field>` is a valid field name<br>`<condition>` is a comparison operator, one of<br>&nbsp;&nbsp;`=` equal<br>&nbsp;&nbsp;`!=` not equal<br>&nbsp;&nbsp;`~` LIKE<br>&nbsp;&nbsp;`!~` not LIKE<br>&nbsp;&nbsp;`<` less<br>&nbsp;&nbsp;`>` greater<br>&nbsp;&nbsp;`<=` less or equal<br>&nbsp;&nbsp;`>=` greater or equal<br>&nbsp;&nbsp;`§` regular expression<br>`<value>` is the value to search for",
 				"schema": {
 					"type": "array",
 					"items": {

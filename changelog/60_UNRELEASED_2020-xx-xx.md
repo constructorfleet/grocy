@@ -162,6 +162,8 @@
 - New translations: (thanks all the translators)
   - Greek (demo available at https://el.demo.grocy.info)
   - Korean (demo available at https://ko.demo.grocy.info)
+  - Chinese (China) (demo available at https://zh-cn.demo.grocy.info)
+  - Hebrew (Israel) (demo available at https://he-il.demo.grocy.info)
 
 ### API improvements/fixes
 - **Breaking changes**:
@@ -188,23 +190,30 @@
   - `/chores`
   - `/batteries`
   - There are 4 new (optional) query parameters to utilize that
-    - `order` The field to order by
+    - `order` The field to order by (use the separator `:` to specify the sort order - `asc` or `desc`, defaults to `asc` when omitted)
     - `limit` The maximum number of objects to return
     - `offset` The number of objects to skip
     - `query[]` An array of conditions, each of them is a string in the form of `<field><condition><value>`, where
       - `<field>` is a field name
       - `<condition>` is a comparison operator, one of
         - `=` equal
+		- `!=` not equal
         - `~` LIKE
+        - `!~` not LIKE
         - `<` less
         - `>` greater
-        - `>=` greater or equal
         - `<=` less or equal
+        - `>=` greater or equal
+        - `§` regular expression
       - `<value>` is the value to search for
 - New endpoint `/stock/shoppinglist/add-overdue-products` to add all currently in-stock but overdue products to a shopping list (thanks @m-byte)
 - New endpoint `/stock/shoppinglist/add-expired-products` to add all currently in-stock but expired products to a shopping list
 - New endpoints GET/POST/PUT `/users/{userId}/permissions` for the new user permissions feature mentioned above
-- The stock journal (entity `stock_log`) is now also available via the endpoint `/objects/{entity}` (=> `/objects/stock_log`)
+- New endpoint `/user` to get the currently authenticated user
+- The following entities are now also available via the endpoint `/objects/{entity}` (only listing, no edit)
+  - `stock_log` (the stock journal)
+  - `stock` (the "raw" stock entries)
+  - `stock_current_locations` (info how much of each product is currently stored at which location)
 - Performance improvements of the `/stock/products/*` endpoints (thanks @fipwmaqzufheoxq92ebc)
 - The endpoint `/stock/products/{productId}/locations` now also has an optional query parameter `include_sub_products` to optionally also return locations of sub products of the given product
 - The following endpoints  now have an optional request body parameter `allow_subproduct_substitution` to consume/open any child product when the given product is a parent product and currently not in stock
@@ -216,5 +225,6 @@
 - Fixed that the endpoint `/stock/volatile` didn't include products which expire today (thanks @fipwmaqzufheoxq92ebc)
 - Fixed that the endpoint `/objects/{entity}` did not include Userfields for Userentities (so the effective endpoint `/objects/userobjects`)
 - Fixed that the endpoint `/stock/consume` returned the response code `200` and an empty response body when `stock_entry_id` was set (consuming a specific stock entry) but invalid (now returns the response code `400`) (thanks @fipwmaqzufheoxq92ebc)
+- Fixed that the endpoint `/user/settings/{settingKey}` didn't return the default setting if it was not configured for the current user (same behavior as the endpoint `/user/settings` now)
 - Endpoint `/calendar/ical`: Fixed that "Track date only"-chores were always set to happen at 12am (are treated as all-day events now)
 - Fixed (again) that CORS was broken
